@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css" class="stylesheet">
+    <title>Postfix Converter</title>
+</head>
+<body>
+    <h1 class="h1"> Postfix Convertor</h1>
+    <div class="card">
+        <div>
+            <input id="inputExpr" class="input input-alt" placeholder="Type an infix expression" required="" type="text">
+            <span class="input-border input-border-alt"></span>
+        </div>
+        <button class="buttons" onclick="converterPostfix()">Convert to Postfix
+            <div class="icon-1">
+                <!-- Add SVG icons here if needed -->
+            </div>
+        </button>
+        <p id="outputResult"></p>
+    </div>
+    <div>
+        <h2 >Keshav Dwivedi <span>@developer_keshav</span></h2>
+    </div>
+    
+
+    <script>
+        const precedence = {
+            '+': 1,
+            '-': 1,
+            '*': 2,
+            '/': 2,
+            '^': 3
+        };
+
+        const isOperator = (char) => ['+', '-', '*', '/', '^'].includes(char);
+
+        const infixToPostfix = (infix) => {
+            const stack = [];
+            let postfix = '';
+            let operand = '';
+
+            for (let i = 0; i < infix.length; i++) {
+                const char = infix[i];
+
+                // Accumulate multi-character operands
+                if (!isNaN(char) || /[a-zA-Z]/.test(char)) {
+                    operand += char;
+                } else {
+                    // If an operator is found, append any accumulated operand first
+                    if (operand !== '') {
+                        postfix += operand + ' ';
+                        operand = '';
+                    }
+
+                    if (char === '(') {
+                        stack.push(char);
+                    } else if (char === ')') {
+                        while (stack.length && stack[stack.length - 1] !== '(') {
+                            postfix += stack.pop() + ' ';
+                        }
+                        stack.pop(); // Remove the '(' from the stack
+                    } else if (isOperator(char)) {
+                        while (
+                            stack.length &&
+                            precedence[char] <= precedence[stack[stack.length - 1]]
+                        ) {
+                            postfix += stack.pop() + ' ';
+                        }
+                        stack.push(char);
+                    }
+                }
+            }
+
+            // Add any remaining operand after the loop
+            if (operand !== '') {
+                postfix += operand + ' ';
+            }
+
+            // Pop all the operators left in the stack
+            while (stack.length) {
+                postfix += stack.pop() + ' ';
+            }
+
+            return postfix.trim(); // Return the postfix expression
+        };
+
+        const converterPostfix = () => {
+            // Get the infix input from the input field
+            let infixInput = document.getElementById('inputExpr').value;
+
+            // Convert infix to postfix
+            let postfix = infixToPostfix(infixInput);
+
+            // Display the postfix result in the paragraph element
+            document.getElementById('outputResult').innerText = `Postfix: ${postfix}`;
+        };
+    </script>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</html>
+
